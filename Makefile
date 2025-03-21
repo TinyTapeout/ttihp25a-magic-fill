@@ -24,5 +24,8 @@ fill: gds/$(PROJECT_NAME).mag
 
 clean:
 	rm -rf gds/$(PROJECT_NAME).gds
+	rm -rf gds/$(PROJECT_NAME)_fill_pattern.gds
 	rm -rf gds/*.mag
+	rm -rf gds/generate_fill.tcl gds/generate_fill_dist.tcl gds/generate_fill_final.tcl
+
 .PHONY: clean

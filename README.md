@@ -6,6 +6,22 @@ This repository contains the GDS file for the [Tiny Tapeout IHP 25a](https://tin
 
 ## How to use
 
+### Using Docker (Recommended)
+
+1. Build the Docker image:
+```bash
+docker build -t magic-fill .
+```
+
+2. Run the container to generate fill:
+```bash
+docker run -v $(pwd):/workspace magic-fill
+```
+
+The generated files will be available in your local directory.
+
+### Manual Setup
+
 Export `PDK_ROOT` and `PDK` environment variables:
 
 ```bash
