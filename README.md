@@ -32,7 +32,7 @@ export PDK=ihp-sg13g2
 Use the provided Makefile to generate the fill:
 
 ```bash
-make fill
+make
 ```
 
 ## Project Index

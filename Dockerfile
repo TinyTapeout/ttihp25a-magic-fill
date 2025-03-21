@@ -11,6 +11,7 @@ RUN apt-get update && apt-get install -y \
     p7zip-full \
     m4 \
     python3 \
+    python3-pip \
     libx11-dev \
     tcl-dev \
     tk-dev \
@@ -40,5 +41,8 @@ WORKDIR /workspace
 # Copy project files
 COPY . .
 
+# Install Python dependencies
+RUN pip3 install --break-system-packages -r scripts/requirements.txt
+
 # Default command to generate fill
-CMD ["make", "fill"] 
+CMD ["make"] 

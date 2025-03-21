@@ -38,15 +38,20 @@ jobs:
           ./configure
           make -j4 
           sudo make install
+      
+      - name: Install Python dependencies
+        run: |
+          sudo apt-get install -y python3-pip
+          pip3 install -r scripts/requirements.txt
 
       - name: Generate fill
-        run: make fill
+        run: make
 
       - name: Upload fill artifact
         uses: actions/upload-artifact@v4
         with:
           name: gds_fill
-          path: gds/tt_ihp_wrapper_fill_pattern.gds
+          path: gds/tt_ihp_wrapper_filled.gds
 
       - name: Upload fill logs artifact
         uses: actions/upload-artifact@v4
