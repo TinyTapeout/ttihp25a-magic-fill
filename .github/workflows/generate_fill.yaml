@@ -1,0 +1,49 @@
+name: generate_fill
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  generate_fill:
+    runs-on: ubuntu-24.04
+    env:
+      PDK_ROOT: ${{ github.workspace }}/pdk
+      PDK: ihp-sg13g2
+      MAGIC_VERSION: 8.3.522
+    steps:
+      - name: checkout repo
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Checkout IHP PDK
+        uses: actions/checkout@v4
+        with:
+          repository: TinyTapeout/IHP-Open-PDK
+          path: ${{ env.PDK_ROOT }}
+          ref: tt2025
+          submodules: recursive
+
+      - name: Install 7zip
+        run: sudo apt-get update && sudo apt-get install -y p7zip-full
+
+      - name: Install magic VLSI
+        run: |
+          sudo apt-get install -y m4 python3 libx11-dev tcl-dev tk-dev libcairo2-dev mesa-common-dev libglu1-mesa-dev
+          git clone -b ${MAGIC_VERSION} https://github.com/RTimothyEdwards/magic magic
+          cd magic
+          ./configure
+          make -j4 
+          sudo make install
+
+      - name: Generate fill
+        run: make fill
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: gds_fill
+          path: gds
