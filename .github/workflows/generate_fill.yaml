@@ -42,8 +42,15 @@ jobs:
       - name: Generate fill
         run: make fill
 
-      - name: Upload artifact
+      - name: Upload fill artifact
         uses: actions/upload-artifact@v4
         with:
           name: gds_fill
+          path: gds/tt_ihp_wrapper_fill_pattern.gds
+
+      - name: Upload fill logs artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: gds_fill_logs
           path: gds
