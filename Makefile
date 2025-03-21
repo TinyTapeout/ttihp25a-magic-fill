@@ -14,7 +14,7 @@ gds/$(PROJECT_NAME).mag: gds/$(PROJECT_NAME).gds
 fill: gds/$(PROJECT_NAME).mag
 	# Patch the fill script to use the correct PDK path
 	sed -i "s|/\$$PDK_PATH|$(PDK_ROOT)/$(PDK)|g" $(FILL_SCRIPT)
-	cd gds && python3 $(FILL_SCRIPT) -dist -keep $(PROJECT_NAME).mag
+	cd gds && ulimit -n 4096 && python3 $(FILL_SCRIPT) -dist -keep $(PROJECT_NAME).mag
 	@if [ ! -f gds/$(PROJECT_NAME)_fill_pattern.gds ]; then \
 		echo "Error: Fill pattern GDS file was not generated"; \
 		exit 1; \

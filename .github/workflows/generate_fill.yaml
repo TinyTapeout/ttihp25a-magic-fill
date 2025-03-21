@@ -35,6 +35,8 @@ jobs:
           sudo apt-get install -y m4 python3 libx11-dev tcl-dev tk-dev libcairo2-dev mesa-common-dev libglu1-mesa-dev
           git clone -b ${MAGIC_VERSION} https://github.com/RTimothyEdwards/magic magic
           cd magic
+          git fetch origin pull/391/head:pr-391 && \
+          git merge pr-391 && \
           ./configure
           make -j4 
           sudo make install

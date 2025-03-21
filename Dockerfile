@@ -23,6 +23,8 @@ RUN apt-get update && apt-get install -y \
 # Clone and install Magic VLSI
 RUN git clone -b ${MAGIC_VERSION} https://github.com/RTimothyEdwards/magic magic && \
     cd magic && \
+    git fetch origin pull/391/head:pr-391 && \
+    git merge pr-391 && \
     ./configure && \
     make -j4 && \
     make install && \
