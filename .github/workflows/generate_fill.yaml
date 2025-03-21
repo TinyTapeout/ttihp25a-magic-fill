@@ -38,7 +38,7 @@ jobs:
           ./configure
           make -j4 
           sudo make install
-      
+
       - name: Install Python dependencies
         run: |
           sudo apt-get install -y python3-pip
@@ -59,3 +59,74 @@ jobs:
         with:
           name: gds_fill_logs
           path: gds
+
+  run_drc:
+    needs: generate_fill
+    runs-on: ubuntu-24.04
+    env:
+      GDS_NAME_FILLED: tt_ihp_wrapper_filled
+      PDK_ROOT: ${{ github.workspace }}/pdk
+      PDK: ihp-sg13g2
+      TO_REPO_ROOT: ${{ github.workspace }}/TO_Repo
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Checkout TO_Repo
+        uses: actions/checkout@v4
+        with:
+          repository: IHP-GmbH/TO_Apr2025
+          path: ${{ env.TO_REPO_ROOT }}
+
+      - name: Checkout IHP PDK
+        uses: actions/checkout@v4
+        with:
+          repository: TinyTapeout/IHP-Open-PDK
+          path: ${{ env.PDK_ROOT }}
+          ref: tt2025
+          submodules: recursive
+
+      - name: Install KLayout
+        shell: bash
+        run: |
+          wget https://github.com/TinyTapeout/klayout/releases/download/v0.29.11/klayout_0.29.11-1_amd64.deb
+          sudo apt-get update && sudo apt-get install -y ./klayout_0.29.11-1_amd64.deb
+
+      - name: Download fill artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: gds_fill
+          path: tinytapeout-submission
+
+      - name: Run DRC check
+        working-directory: tinytapeout-submission
+        run: |
+          klayout -b -r ${{ env.TO_REPO_ROOT }}/drc/drc.lydrc -rd "in_gds"="${GDS_NAME_FILLED}.gds" -rd "report_file"="${GDS_NAME_FILLED}.gds.lyrdb" 2>&1 | tee ${GDS_NAME_FILLED}.gds.log
+          if [ $? -ne 0 ]; then
+            echo "❌ DRC check failed" | tee -a $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
+
+          if [ ! -f "${GDS_NAME_FILLED}.gds.lyrdb" ]; then
+            echo "❌ DRC report file not found" | tee -a $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
+
+          if ! grep -q "Number of DRC errors: 0" ${GDS_NAME_FILLED}.gds.log; then
+            echo "## ❌ DRC errors found in the design" | tee -a $GITHUB_STEP_SUMMARY
+            grep "Number of DRC errors:" ${GDS_NAME_FILLED}.gds.log | tee -a $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
+
+          echo "✅ DRC check passed" | tee -a $GITHUB_STEP_SUMMARY
+
+      - name: Upload precheck results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: precheck_results
+          path: |
+            tinytapeout-submission/${{ env.GDS_NAME_FILLED }}.gds.lyrdb
+            tinytapeout-submission/${{ env.GDS_NAME_FILLED }}.gds.log
