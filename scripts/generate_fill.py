@@ -104,11 +104,12 @@ if __name__ == '__main__':
     if magpath == '':
         magpath = os.getcwd()
     
-    if os.path.splitext(user_project_path)[1] != '.mag':
-        if os.path.splitext(user_project_path)[1] == '':
+    extension = os.path.splitext(user_project_path)[1]
+    if extension not in ['.mag', '.gds']:
+        if extension == '':
             user_project_path += '.mag'
         else:
-            print('Error:  Project is not a magic database .mag file!')
+            print('Error:  Project is not a magic database .mag or GDS file!')
             sys.exit(1)
 
     if not os.path.isfile(user_project_path):
@@ -164,6 +165,10 @@ if __name__ == '__main__':
     print('set starttime [orig_clock format [orig_clock seconds] -format "%D %T"]', file=ofile)
     print('puts stdout "Started: $starttime"', file=ofile)
     print('', file=ofile)
+    if extension == '.gds':
+        print('gds readonly true', file=ofile)
+        print('gds rescale false', file=ofile)
+        print('gds read ' + project, file=ofile)
     print('load ' + project + ' -dereference', file=ofile)
     print('select top cell', file=ofile)
     print('expand', file=ofile)

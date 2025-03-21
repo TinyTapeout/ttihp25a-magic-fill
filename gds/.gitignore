@@ -3,3 +3,5 @@
 generate_fill.tcl
 generate_fill_dist.tcl
 generate_fill_final.tcl
+fill_gen_info.txt
+
